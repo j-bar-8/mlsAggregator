@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>aggregator</title>
+</head>
+<body>
+    <!-- ZIP CODE SEARCH FORM -->
+    <form id="listing-search">
+        <label for="zip-code">Zip Code</label>
+        <input type="text" id="zip-input">
+        <br>
+        <input id="select-zip" type="submit" value="Search">
+    </form>
+
+    <!-- DISPLAY RESULTS -->
+    <div id="listings-view"></div>
+</body>
+
+<!-- JQUERY -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<!-- FUNCTIONS -->
+<script>
+    // AJAX CALL
+    function getListingsByZip(zipCode) {
+        const accessCode = "3b1a7f93f3996f2a055b1102a29ce986"
+        const queryURL = "https://api.bridgedataoutput.com/api/v2/OData/test/Property?access_token=" + accessCode;
+
+        $.ajax({
+            url: queryURL,
+            method: "GET"
+        }).then(function(response) {
+            // console.log(response.value);
+
+            let retrievedData = response.value;
+            console.log(retrievedData);
+            
+            function displayListingInfo () {
+                for (let i=0; i<retrievedData.length; i++) {
+                    // console.log(retrievedData[i].ListPrice);
+                    let listing = $("<p>");
+                    let address = $("<h1>").text(retrievedData[i].UnparsedAddress);
+                    let listPrice = $("<h2>").text("List Price: " + retrievedData[i].ListPrice);
+                    let daysOnMarket = $("<h2>").text("Days on Market: " + retrievedData[i].DaysOnMarket);
+                    
+                    listing.append(address);
+                    listing.append(listPrice);
+                    listing.append(daysOnMarket);
+                    
+                    $("#listings-view").prepend(listing);
+                    
+                }
+            }
+
+            displayListingInfo();
+        });
+    }
+
+    // EVENT HANDLER
+    $("#select-zip").on("click", function(event) {
+        event.preventDefault();
+
+        const zipInput = $("#zip-input").val().trim();
+
+        getListingsByZip(zipInput);
+    })
+</script>
+</html>
